@@ -1,7 +1,7 @@
 {
-  "name": "butchi-web-starter-kit",
-  "version": "0.0.0",
-  "description": "description",
+  "name": "analytic-signal",
+  "version": "0.0.1",
+  "description": "Analytic Signal.",
   "main": "gulpfile.babel.js",
   "engines": {
     "node": ">=6.9.1"
@@ -16,7 +16,7 @@
     "build-html": "gulp html"
   },
   "keywords": [
-    "starterkit"
+    "analytic signal"
   ],
   "author": "IWABUCHI Yuuki",
   "license": "MIT",
