@@ -7,6 +7,123 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function inv(n) {
+  if (n === 0) {
+    return 0;
+  } else {
+    return 1 / (n * Math.PI);
+  }
+}
+
+function normalize(val) {
+  return (val - 128) / 128;
+}
+
+var AnalyticSignal = function () {
+  function AnalyticSignal() {
+    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _classCallCheck(this, AnalyticSignal);
+
+    this.initialize(opts);
+  }
+
+  _createClass(AnalyticSignal, [{
+    key: 'initialize',
+    value: function initialize() {
+      var _this = this;
+
+      var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      this.elm = opts.elm;
+
+      this.kernelLen = opts.kernelLen || 127;
+      this.amp = opts.amp || 128;
+
+      this.width = opts.width || 256;
+      this.height = opts.height || 256;
+
+      this.audioElm = this.elm.querySelector('.main-audio');
+      this.canvasElm = this.elm.querySelector('.main-canvas');
+      this.canvasContext = this.canvasElm.getContext("2d");
+
+      this.canvasElm.width = this.width;
+      this.canvasElm.height = this.height;
+
+      this.audioContext = new AudioContext();
+      this.analyser = this.audioContext.createAnalyser();
+
+      if (!navigator.getUserMedia) {
+        console.log("getUserMedia not supported");
+
+        return;
+      }
+
+      navigator.getUserMedia({ audio: true }, function (stream) {
+        _this.getUserMediaHandler(stream);
+      }, function (err) {
+        console.log("The following error occured: " + err);
+      });
+    }
+  }, {
+    key: 'getUserMediaHandler',
+    value: function getUserMediaHandler(stream) {
+      this.url = URL.createObjectURL(stream);
+      this.mediastreamsource = this.audioContext.createMediaStreamSource(stream);
+
+      this.audioElm.src = this.url;
+      this.audioElm.volume = 0;
+
+      this.mediastreamsource.connect(this.analyser);
+
+      this.animation(stream);
+    }
+  }, {
+    key: 'animation',
+    value: function animation(stream) {
+      var _this2 = this;
+
+      var timeDomainData = new Uint8Array(this.analyser.frequencyBinCount);
+
+      this.analyser.getByteTimeDomainData(timeDomainData);
+
+      this.canvasContext.clearRect(0, 0, this.width, this.height);
+      this.canvasContext.beginPath();
+
+      var len = timeDomainData.length - this.kernelLen;
+      for (var i = this.kernelLen; i < len; i++) {
+        var hilbTmp = 0;
+        for (var k = -this.kernelLen; k <= this.kernelLen; k++) {
+          hilbTmp += inv(k) * (normalize(timeDomainData[i + k]) || 0);
+        }
+        var x = this.width / 2 + this.amp * normalize(timeDomainData[i]);
+        var y = this.height / 2 - this.amp * hilbTmp;
+        this.canvasContext.lineTo(x, y);
+      }
+      this.canvasContext.stroke();
+
+      requestAnimationFrame(function () {
+        _this2.animation(stream);
+      });
+    }
+  }]);
+
+  return AnalyticSignal;
+}();
+
+exports.default = AnalyticSignal;
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _Router = require('./Router');
 
 var _Router2 = _interopRequireDefault(_Router);
@@ -44,7 +161,7 @@ var Main = function () {
 
 exports.default = Main;
 
-},{"./Router":2}],2:[function(require,module,exports){
+},{"./Router":3}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -94,7 +211,7 @@ var Router = function () {
 
 exports.default = Router;
 
-},{"../page/Common":4,"../page/Index":5,"./ns":3}],3:[function(require,module,exports){
+},{"../page/Common":5,"../page/Index":6,"./ns":4}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -109,7 +226,7 @@ window.App = window.App || {};
 var ns = window.App;
 exports.default = ns;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -168,117 +285,53 @@ var Common = function () {
 
 exports.default = Common;
 
-},{"../module/ns":3}],5:[function(require,module,exports){
-"use strict";
+},{"../module/ns":4}],6:[function(require,module,exports){
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ns = require("../module/ns");
+var _ns = require('../module/ns');
 
 var _ns2 = _interopRequireDefault(_ns);
+
+var _AnalyticSignal = require('../module/AnalyticSignal');
+
+var _AnalyticSignal2 = _interopRequireDefault(_AnalyticSignal);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Index = function () {
-    function Index() {
-        var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  function Index() {
+    var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-        _classCallCheck(this, Index);
+    _classCallCheck(this, Index);
 
-        this.initialize();
+    this.initialize();
+  }
+
+  _createClass(Index, [{
+    key: 'initialize',
+    value: function initialize() {
+      this.analyticSignal = new _AnalyticSignal2.default({
+        elm: document.querySelector('.analytic-signal'),
+        width: 465,
+        height: 465
+      });
     }
+  }]);
 
-    _createClass(Index, [{
-        key: "initialize",
-        value: function initialize() {
-            var width = 465;
-            var height = 465;
-
-            var kernelLen = 127;
-            var amp = 128;
-
-            function inv(n) {
-                if (n === 0) {
-                    return 0;
-                } else {
-                    return 1 / (n * Math.PI);
-                }
-            }
-
-            function normalize(val) {
-                return (val - 128) / 128;
-            }
-
-            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-            window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
-            window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
-
-            function initialize() {
-                var audioElm = document.getElementById("audio");
-                var canvasElm = document.getElementById("canvas");
-                var canvasContext = canvasElm.getContext("2d");
-                var timeDomainData;
-
-                canvasElm.width = width;
-                canvasElm.height = height;
-
-                if (navigator.getUserMedia) {
-                    navigator.getUserMedia({ audio: true }, function (stream) {
-                        var url = URL.createObjectURL(stream);
-                        audioElm.src = url;
-                        audioElm.volume = 0;
-                        var audioContext = new AudioContext();
-                        var mediastreamsource = audioContext.createMediaStreamSource(stream);
-                        var analyser = audioContext.createAnalyser();
-                        timeDomainData = new Uint8Array(analyser.frequencyBinCount);
-                        mediastreamsource.connect(analyser);
-
-                        var animation = function animation() {
-                            analyser.getByteTimeDomainData(timeDomainData);
-
-                            var i, k, l;
-                            canvasContext.clearRect(0, 0, width, height);
-                            canvasContext.beginPath();
-
-                            for (i = kernelLen, l = timeDomainData.length - kernelLen; i < l; i++) {
-                                var hilbTmp = 0;
-                                for (k = -kernelLen; k <= kernelLen; k++) {
-                                    hilbTmp += inv(k) * (normalize(timeDomainData[i + k]) || 0);
-                                }
-                                var x = width / 2 + amp * normalize(timeDomainData[i]);
-                                var y = height / 2 - amp * hilbTmp;
-                                canvasContext.lineTo(x, y);
-                            }
-                            canvasContext.stroke();
-
-                            requestAnimationFrame(animation);
-                        };
-
-                        animation();
-                    }, function (err) {
-                        console.log("The following error occured: " + err);
-                    });
-                } else {
-                    console.log("getUserMedia not supported");
-                }
-            }
-
-            window.addEventListener("load", initialize, false);
-        }
-    }]);
-
-    return Index;
+  return Index;
 }();
 
 exports.default = Index;
 
-},{"../module/ns":3}],6:[function(require,module,exports){
+},{"../module/AnalyticSignal":1,"../module/ns":4}],7:[function(require,module,exports){
 'use strict';
 
 var _ns = require('./module/ns');
@@ -293,6 +346,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // エントリーポイント。indexからはライブラリとこれしか呼ばない
 
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
+
 _ns2.default.main = new _Main2.default();
 
-},{"./module/Main":1,"./module/ns":3}]},{},[6]);
+},{"./module/Main":2,"./module/ns":4}]},{},[7]);
