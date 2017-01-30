@@ -320,8 +320,8 @@ var Index = function () {
     value: function initialize() {
       this.analyticSignal = new _AnalyticSignal2.default({
         elm: document.querySelector('.analytic-signal'),
-        width: 465,
-        height: 465
+        width: 375,
+        height: 375
       });
     }
   }]);

@@ -104,6 +104,14 @@ html.is-sp .wrapper {
 
 html.is-pc .wrapper {
   width: 100%;
-  min-width: 1200px;
-  min-width: 12rem;
+  min-width: 375px;
+  min-width: 3.75rem;
   overflow: hidden; }
+
+.analytic-signal {
+  width: 100%;
+  max-width: 375px;
+  height: auto; }
+  .analytic-signal .main-canvas {
+    width: 100%;
+    height: auto; }

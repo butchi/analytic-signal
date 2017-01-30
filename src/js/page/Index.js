@@ -9,8 +9,8 @@ export default class Index {
   initialize() {
     this.analyticSignal = new AnalyticSignal({
       elm: document.querySelector('.analytic-signal'),
-      width: 465,
-      height: 465,
+      width: 375,
+      height: 375,
     });
   }
 }
