@@ -1,5 +1,4 @@
-import ns from '../module/ns';
-import AnalyticSignal from '../module/AnalyticSignal';
+import AnalyticSignal from '../module/analytic-signal';
 
 export default class Index {
   constructor(opts = {}) {
@@ -12,5 +11,7 @@ export default class Index {
       width: 375,
       height: 375,
     });
+
+    console.log(this.analyticSignal);
   }
 }

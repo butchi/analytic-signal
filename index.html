@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>解析信号ビューワー</title>
+    <style>
+        .analytic-signal {
+            width: 100%;
+            max-width: 375px;
+            height: auto;
+        }
+
+        .main-canvas {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body class="page-index">
+    <div class="wrapper">
+        <header>
+            <h1>解析信号ビューワー</h1>
+        </header>
+        <main>
+            <div class="analytic-signal">
+                <video class="main-video"></video>
+                <audio class="main-audio"></audio>
+                <canvas class="main-canvas"></canvas>
+            </div>
+        </main>
+
+    </div>
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/lodash.min.js"></script>
+    <script src="js/script.js" type="module"></script>
+</body>
+
+</html>
